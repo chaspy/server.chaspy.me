@@ -27,3 +27,4 @@ systemctl restart ssh
 # firewall enable
 ufw enable
 ufw allow 22/tcp
+ufw allow 80/tcp

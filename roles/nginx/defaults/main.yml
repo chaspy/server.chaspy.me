@@ -1,4 +1,3 @@
 ---
 
-conf_file: /etc/nginx/sites-available/default
 server_name: localhost

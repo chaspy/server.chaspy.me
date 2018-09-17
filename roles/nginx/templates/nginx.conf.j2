@@ -1,13 +1,95 @@
-server {
-  listen 80 default_server;
-  listen [::]:80 default_server ipv6only=on;
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
 
-  root /usr/share/nginx/html;
-  index index.html index.htm;
+events {
+	worker_connections 768;
+	# multi_accept on;
+}
 
-  server_name {{ server_name }};
+http {
 
-  location / {
-          try_files $uri $uri/ =404;
+	##
+	# Basic Settings
+	##
+
+	sendfile on;
+	tcp_nopush on;
+	tcp_nodelay on;
+	keepalive_timeout 65;
+	types_hash_max_size 2048;
+	# server_tokens off;
+
+	# server_names_hash_bucket_size 64;
+	# server_name_in_redirect off;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	##
+	# SSL Settings
+	##
+
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # Dropping SSLv3, ref: POODLE
+	ssl_prefer_server_ciphers on;
+
+	##
+	# Logging Settings
+	##
+
+  log_format  ltsv  'domain:$host\t'
+                    'host:$remote_addr\t'
+                    'user:$remote_user\t'
+                    'time:$time_local\t'
+                    'method:$request_method\t'
+                    'path:$request_uri\t'
+                    'protocol:$server_protocol\t'
+                    'status:$status\t'
+                    'size:$body_bytes_sent\t'
+                    'referer:$http_referer\t'
+                    'agent:$http_user_agent\t'
+                    'response_time:$request_time\t'
+                    'cookie:$http_cookie\t'
+                    'set_cookie:$sent_http_set_cookie\t'
+                    'upstream_addr:$upstream_addr\t'
+                    'upstream_cache_status:$upstream_cache_status\t'
+                    'upstream_response_time:$upstream_response_time';
+
+  access_log /var/log/nginx/access.log  ltsv;
+	error_log /var/log/nginx/error.log;
+
+	##
+	# Gzip Settings
+	##
+
+	gzip on;
+
+	# gzip_vary on;
+	# gzip_proxied any;
+	# gzip_comp_level 6;
+	# gzip_buffers 16 8k;
+	# gzip_http_version 1.1;
+	# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+	##
+	# Virtual Host Configs
+	##
+
+	include /etc/nginx/conf.d/*.conf;
+	include /etc/nginx/sites-enabled/*;
+
+  server {
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+
+    root /usr/share/nginx/html;
+    index index.html index.htm;
+
+    server_name {{ server_name }};
+
+    location / {
+            try_files $uri $uri/ =404;
+    }
   }
 }
