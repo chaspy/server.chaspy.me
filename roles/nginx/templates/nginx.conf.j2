@@ -54,7 +54,8 @@ http {
                     'set_cookie:$sent_http_set_cookie\t'
                     'upstream_addr:$upstream_addr\t'
                     'upstream_cache_status:$upstream_cache_status\t'
-                    'upstream_response_time:$upstream_response_time';
+                    'upstream_response_time:$upstream_response_time\t'
+                    'request_body:$request_body';
 
   access_log /var/log/nginx/access.log  ltsv;
 	error_log /var/log/nginx/error.log;
@@ -86,10 +87,14 @@ http {
     root /usr/share/nginx/html;
     index index.html index.htm;
 
-    server_name {{ server_name }};
+    server_name localhost;
 
     location / {
+            limit_except GET POST {
+            }
             try_files $uri $uri/ =404;
+            error_page 405 = $uri;
+
     }
   }
 }
