@@ -1,0 +1,5 @@
+- name: apply to conoha
+  hosts: conoha
+  become: True
+  roles:
+    - nginx
