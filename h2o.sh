@@ -3,6 +3,8 @@
 # https://gist.github.com/inductor/e88f99ecd47615573220d32b0b3a6010
 apt update && apt upgrade -y && apt autoremove -y
 apt -y install locate git cmake build-essential checkinstall autoconf pkg-config libtool python-sphinx wget libcunit1-dev nettle-dev libyaml-dev libuv-dev libssl-dev zlib1g-dev
+# for mruby
+apt -y install ruby ruby-dev bison
 git clone https://github.com/tatsuhiro-t/wslay.git
 git clone https://github.com/h2o/h2o.git
 cd wslay/
@@ -15,6 +17,7 @@ make install
 ls /usr/local/lib/
 cd ../h2o/
 cmake -DWITH_BUNDLED_SSL=on .
+cmake -DWITH_MRUBY=on .
 make
 make install
 
@@ -49,6 +52,11 @@ hosts:
     paths:
       "/":
         file.dir: /var/www/html
+      "/mruby":
+        mruby.handler: |
+          Proc.new do |env|
+            [200, {'content-type' => 'text/plain'}, ["Hello world\n"]]
+          end
   "server.chaspy.me:80":
     listen:
       port: 80
