@@ -36,6 +36,7 @@ PrivateTmp=true
 WantedBy=multi-user.target
 H2O
 
+mkdir -p /etc/h2o/
 cat << H2Oconf > /etc/h2o/h2o.conf
 user: nobody
 hosts:
@@ -66,6 +67,7 @@ cat << INDEX > /var/www/html/index.html
 welcome servwer.chaspy.me
 INDEX
 
+mkdir -p /var/log/h2o
 mkdir -p /var/run/h2o
 systemctl enable h2o.service
 systemctl start h2o
