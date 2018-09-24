@@ -49,14 +49,21 @@ hosts:
         key-file: "/etc/letsencrypt/live/server.chaspy.me/privkey.pem"
     paths:
       "/":
-        file.dir: /var/www/html
+        mruby.handler: |
+          Proc.new do |env|
+            [200, {'content-type' => 'text/plain'}, ["Hello World\n"]]
+          end
+
   "server.chaspy.me:80":
     listen:
       port: 80
       host: 0.0.0.0
     paths:
       "/":
-        file.dir: /var/www/html
+        mruby.handler: |
+          Proc.new do |env|
+            [200, {'content-type' => 'text/plain'}, ["Hello World\n"]]
+          end
 access-log: /var/log/h2o/access.log
 error-log: /var/log/h2o/error.log
 pid-file: /var/run/h2o/h2o.pid
