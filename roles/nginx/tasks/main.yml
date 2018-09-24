@@ -1,9 +1,102 @@
-- name: install nginx
-  apt: name=nginx update_cache=yes cache_valid_time=3600
-
-- name: copy nginx config file
-  template: src=templates/nginx.conf.j2 dest=/etc/nginx/nginx.conf
-  notify: restart nginx
-
-- name: copy index.html
-  template: src=templates/index.html.j2 dest=/usr/share/nginx/html/index.html mode=0644
+- name: install dependency
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - git
+    - gcc
+    - libpcre3-dev
+    - ruby
+    - bison
+    - rake
+    - build-essential
+    - zlib1g-dev
+    - libssl-dev
+    - libpcre3-dev
+    - libnginx-mod-http-geoip
+    - libnginx-mod-http-image-filter
+    - libnginx-mod-http-xslt-filter
+    - libnginx-mod-mail
+    - libnginx-mod-stream
+    - nginx-common
+    - nginx-core
+    - fcgiwrap
+    - nginx-doc
+    - ssl-cert
+- name: get nginx_devel_kit
+  git:
+    repo: https://github.com/simpl/ngx_devel_kit.git
+    dest: /usr/local/src/ngx_devel_kit
+- name: get ngx_mruby
+  git:
+    repo: https://github.com/matsumoto-r/ngx_mruby.git
+    dest: /usr/local/src/ngx_mruby
+    track_submodules: yes
+- name: get nginx
+  get_url:
+    url: "http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz"
+    dest: /usr/local/src/nginx-{{ nginx_version }}.tar.gz
+- name: unarchive nginx
+  unarchive:
+    src: http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz
+    dest: /usr/local/src
+    remote_src: yes
+    creates: /usr/local/src/nginx-{{ nginx_version }}
+- name: configure ngx_mruby
+  command: ./configure --with-ngx-src-root={{ nginx_src }}
+  args:
+    chdir: "{{ ngx_mruby_src }}"
+- name: build mruby
+  command: make build_mruby
+  args:
+    chdir: "{{ ngx_mruby_src }}"
+- name: generate_gems_config
+  command: make generate_gems_config
+  args:
+    chdir: "{{ ngx_mruby_src }}"
+- name: build nginx
+  command: ./configure --prefix=/usr/local/nginx --sbin-path=/usr/local/nginx --add-module=/usr/local/src/ngx_devel_kit --add-module={{ ngx_mruby_src }} --pid-path=/var/run/nginx/nginx.pid --with-http_ssl_module --with-http_v2_module
+  args:
+    chdir: "{{ nginx_src }}"
+- name: make nginx
+  command: make
+  args:
+    chdir: "{{ nginx_src }}"
+- name: make install
+  command: make install
+  args:
+    chdir: "{{ nginx_src }}"
+    creates: /usr/local/nginx/nginx
+- name: add nginx PATH
+  lineinfile:
+    path: /etc/profile
+    state: present
+    line: 'export PATH=/usr/local/nginx/:$PATH'
+- name: set nginx.conf
+  template:
+    src: nginx.conf
+    dest: /usr/local/nginx/conf/
+- name: create dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /var/www/html
+    - /var/log/nginx
+- name: create log file
+  file:
+    path: "{{ item }}"
+    state: touch
+    mode: 755
+  with_items:
+    - /var/log/nginx/www.example.com_access.log
+    - /var/log/nginx/www.example.com_error.log
+- name: set service file
+  template:
+    src: nginx.service
+    dest: /lib/systemd/system/nginx.service
+- name: run nginx when aws and vagrant
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
