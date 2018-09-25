@@ -67,6 +67,11 @@ hosts:
 access-log: /var/log/h2o/access.log
 error-log: /var/log/h2o/error.log
 pid-file: /var/run/h2o/h2o.pid
+
+# base directive tuning
+# https://h2o.examp1e.net/configure/base_directives.html
+num-threads: 32 # default 2(getconf _NPROCESSORS_ONLN)
+max-connections: 10000 # default 1024 https://h2o.examp1e.net/configure/base_directives.html#max-connections
 H2Oconf
 
 cat << INDEX > /var/www/html/index.html
