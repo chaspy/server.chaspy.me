@@ -39,6 +39,7 @@ PrivateTmp=true
 WantedBy=multi-user.target
 H2O
 
+mkdir -p /etc/h2o/
 cat << H2Oconf > /etc/h2o/h2o.conf
 user: nobody
 hosts:
@@ -51,22 +52,29 @@ hosts:
         key-file: "/etc/letsencrypt/live/server.chaspy.me/privkey.pem"
     paths:
       "/":
-        file.dir: /var/www/html
-      "/mruby":
         mruby.handler: |
           Proc.new do |env|
-            [200, {'content-type' => 'text/plain'}, ["Hello world\n"]]
+            [200, {'content-type' => 'text/plain'}, ["Hello World\n"]]
           end
+
   "server.chaspy.me:80":
     listen:
       port: 80
       host: 0.0.0.0
     paths:
       "/":
-        file.dir: /var/www/html
+        mruby.handler: |
+          Proc.new do |env|
+            [200, {'content-type' => 'text/plain'}, ["Hello World\n"]]
+          end
 access-log: /var/log/h2o/access.log
 error-log: /var/log/h2o/error.log
 pid-file: /var/run/h2o/h2o.pid
+
+# base directive tuning
+# https://h2o.examp1e.net/configure/base_directives.html
+num-threads: 32 # default 2(getconf _NPROCESSORS_ONLN)
+max-connections: 10000 # default 1024 https://h2o.examp1e.net/configure/base_directives.html#max-connections
 H2Oconf
 
 cat << INDEX > /var/www/html/index.html
@@ -74,6 +82,7 @@ cat << INDEX > /var/www/html/index.html
 welcome servwer.chaspy.me
 INDEX
 
+mkdir -p /var/log/h2o
 mkdir -p /var/run/h2o
 systemctl enable h2o.service
 systemctl start h2o
