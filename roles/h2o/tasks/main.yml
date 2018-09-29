@@ -1,0 +1,93 @@
+- name: install dependency
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - locate
+    - git
+    - cmake
+    - build-essential
+    - checkinstall 
+    - autoconf
+    - pkg-config
+    - libtool
+    - python-sphinx
+    - wget
+    - libcunit1-dev
+    - nettle-dev
+    - libyaml-dev
+    - libuv-dev
+    - libssl-dev
+    - zlib1g-dev
+- name: install dependency for mruby
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ruby
+    - ruby-dev
+    - bison
+- name: get wslay
+  git:
+    repo: https://github.com/tatsuhiro-t/wslay.git
+    dest: /usr/local/src/wslay
+- name: get h2o
+  git:
+    repo: https://github.com/h2o/h2o.git
+    dest: /usr/local/src/h2o
+- name: autoreconf -i
+  command: autoreconf -i
+  args:
+    chdir: "{{ wslay_src }}"
+- name: autoreconf -i
+  command: autoreconf -i
+  args:
+    chdir: "{{ wslay_src }}"
+- name: automake
+  command: automake
+  args:
+    chdir: "{{ wslay_src }}"
+- name: autoconf
+  command: autoconf
+  args:
+    chdir: "{{ wslay_src }}"
+- name: ./configure
+  command: ./configure
+  args:
+    chdir: "{{ wslay_src }}"
+- name: make
+  command: make
+  args:
+    chdir: "{{ wslay_src }}"
+- name: make install
+  command: make install
+  args:
+    chdir: "{{ wslay_src }}"
+- name: cmake
+  command: cmake -DWITH_BUNDLED_SSL=on -DWITH_MRUBY=on .
+  args:
+    chdir: "{{ h2o_src }}"
+- name: make
+  command: make 
+  args:
+    chdir: "{{ h2o_src }}"
+- name: make install
+  command: make install
+  args:
+    chdir: "{{ h2o_src }}"
+- name: create dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/h2o/
+    - /var/log/h2o
+    - /var/run/h2o
+- name: set h2o service
+  template:
+    src: h2o.service
+    dest: /lib/systemd/system/h2o.service
+- name: add h2o conf
+  template:
+    src: h2o.conf
+    dest: /etc/h2o/he2.conf
