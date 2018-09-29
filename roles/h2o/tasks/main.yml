@@ -90,4 +90,4 @@
 - name: add h2o conf
   template:
     src: h2o.conf
-    dest: /etc/h2o/he2.conf
+    dest: /etc/h2o/h2o.conf
