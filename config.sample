@@ -1,0 +1,7 @@
+Host conoha
+  HostName <ip addr>
+  User chaspy
+
+Host bench
+  HostName <ip addr>
+  User chaspy
