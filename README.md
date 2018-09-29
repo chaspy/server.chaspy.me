@@ -12,7 +12,7 @@
 6. Exec script for Let"s Encrypt
     - `ssh conoha`
     - `sudo su`
-    - `cd && ./letsencrypt.sh``
+    - `cd && ./letsencrypt.sh`
 7. Update `hosts`
 8. ansible-playbook -i hosts site.yml
 
