@@ -1,2 +1,5 @@
 - name: restart nginx
-  service: name=nginx state=restarted
+  service:
+    name: nginx
+    state: restarted
+    daemon_reload: yes

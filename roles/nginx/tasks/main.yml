@@ -95,8 +95,15 @@
   template:
     src: nginx.service
     dest: /lib/systemd/system/nginx.service
-- name: run nginx when aws and vagrant
+- name: run nginx
   systemd:
     name: nginx
-    enabled: yes
+    enabled: no
     state: started
+  notify: restart nginx
+- name: stop nginx
+  systemd:
+    name: nginx
+    enabled: no
+    state: stopped
+
