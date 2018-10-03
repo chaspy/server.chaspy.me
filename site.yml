@@ -4,4 +4,5 @@
   roles:
     - nginx
     - h2o
+    - apache
     - h2load
