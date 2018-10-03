@@ -1,0 +1,19 @@
+- name: install dependency
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - apache2
+- name: update ssl configure
+  template:
+    src: default-ssl.conf
+    dest: /etc/apache2/sites-available/
+- name: enable defualt ssl
+  command: a2ensite default-ssl
+- name: enable module ssl
+  command: a2enmod ssl
+- name: stop apache2
+  systemd:
+    name: apache2
+    enabled: no
+    state: stopped
