@@ -95,12 +95,6 @@
   template:
     src: nginx.service
     dest: /lib/systemd/system/nginx.service
-- name: run nginx
-  systemd:
-    name: nginx
-    enabled: no
-    state: started
-  notify: restart nginx
 - name: stop nginx
   systemd:
     name: nginx

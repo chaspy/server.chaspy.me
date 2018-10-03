@@ -91,3 +91,8 @@
   template:
     src: h2o.conf
     dest: /etc/h2o/h2o.conf
+- name: stop h2o
+  systemd:
+    name: h2o
+    enabled: no
+    state: stopped
